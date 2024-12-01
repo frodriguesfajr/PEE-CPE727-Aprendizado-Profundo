@@ -1,6 +1,6 @@
 FROM debian:bullseye
 
-LABEL maintainer "Filipe Rodrigues <frodriguesfajr@gmail.com>"
+LABEL maintainer="Filipe Rodrigues <frodriguesfajr@gmail.com>"
 
 # Configuração de variáveis de ambiente
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
@@ -12,21 +12,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip python3-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Instalar o Miniconda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
-    echo "Checksum Verification..." && \
-    echo "fa6b6b6f3e1f2b2041a741a48d62b34fa740c56712fa12345d6b3a32b32f95a2  /tmp/miniconda.sh" | sha256sum -c - && \
     /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
     rm /tmp/miniconda.sh && \
     /opt/conda/bin/conda clean --all -y && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
     echo ". /opt/conda/etc/profile.d/conda.sh" >> /etc/bash.bashrc
 
-# Crie um ambiente Conda com Python 3.10
+
+# Criar ambiente Conda com Python 3.10
 RUN /opt/conda/bin/conda create -n py310_env python=3.10 -y && \
     /opt/conda/bin/conda clean --all -y
 
-# Configure o ambiente Conda para ser ativado por padrão
+# Configurar o ambiente Conda como padrão
 ENV CONDA_DEFAULT_ENV=py310_env
 ENV PATH=/opt/conda/envs/py310_env/bin:$PATH
 
@@ -34,24 +32,16 @@ ENV PATH=/opt/conda/envs/py310_env/bin:$PATH
 RUN /opt/conda/bin/conda install -c conda-forge jupyterlab notebook -y && \
     /opt/conda/bin/conda clean --all -y
 
-# Instalar pacotes do Python
+# Instalar pacotes Python adicionais
 RUN pip install --no-cache-dir numpy==1.26.4 matplotlib==3.8.0 scikit-learn==1.5.2 keras==3.5.0 tensorflow==2.17 visualkeras==0.1.4
 
-# Defina o diretório de trabalho
+# Definir diretório de trabalho
 WORKDIR /workspace
 
-# Baixar o arquivo greedy_UP.ipynb diretamente do repositório
-RUN wget https://raw.githubusercontent.com/frodriguesfajr/PEE-CPE727-Aprendizado-Profundo/refs/heads/main/2024-03/Seminarios/7%20-%20Aprendizado%20por%20representa%C3%A7%C3%A3o/greedy_UP.ipynb -O /workspace/arquivo.py
-
-# Baixar o arquivo utils_greedy.py diretamente do repositório
-RUN wget https://raw.githubusercontent.com/frodriguesfajr/PEE-CPE727-Aprendizado-Profundo/refs/heads/main/2024-03/Seminarios/7%20-%20Aprendizado%20por%20representa%C3%A7%C3%A3o/utils_greedy.py -O /workspace/arquivo.py
-
-# Baixar o arquivo Aprendizado_por_Transferência_CIFAR.ipynb diretamente do repositório
-RUN wget https://raw.githubusercontent.com/frodriguesfajr/PEE-CPE727-Aprendizado-Profundo/refs/heads/main/2024-03/Seminarios/7%20-%20Aprendizado%20por%20representa%C3%A7%C3%A3o/Aprendizado_por_Transfer%C3%AAncia_CIFAR.ipynb -O /workspace/arquivo.py
-
-
-
-# Expor a porta 8888 para acesso ao Jupyter Notebook
+# Baixar arquivos do repositório
+RUN wget https://raw.githubusercontent.com/frodriguesfajr/PEE-CPE727-Aprendizado-Profundo/main/2024-03/Seminarios/7%20-%20Aprendizado%20por%20representa%C3%A7%C3%A3o/greedy_UP.ipynb -O /workspace/greedy_UP.ipynb && \
+    wget https://raw.githubusercontent.com/frodriguesfajr/PEE-CPE727-Aprendizado-Profundo/main/2024-03/Seminarios/7%20-%20Aprendizado%20por%20representa%C3%A7%C3%A3o/utils_greedy.py -O /workspace/utils_greedy.py && \
+    wget https://raw.githubusercontent.com/frodriguesfajr/PEE-CPE727-Aprendizado-Profundo/main/2024-03/Seminarios/7%20-%20Aprendizado%20por%20representa%C3%A7%C3%A3o/TransferLearning_CIFAR.ipynb -O /workspace/TransferLearning_CIFAR.ipynb
 
 # Expor a porta 8888 para acesso ao Jupyter Notebook
 EXPOSE 8888
